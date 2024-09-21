@@ -1,48 +1,34 @@
 
-const donarRegisterModel = require('../../models/Register/Donar_register.model');
+const DonarRegisterModel = require('../../models/Register/Donar_register.model');
 
 const getDonars = async (req, res) => {
-    const { search } = req.query; 
-  
-    try { 
-      const donars = await donarRegisterModel.find({ 
-        bloodGroup: { $regex: new RegExp(search, 'i') },
-      });
-       
-      if (donars && donars.length > 0) {
-        res.status(200).json({
-            message: "Get All Donars",
-            donars: donars,
-          });
-      }else{
-        res.status(404).json({
-            message: "No donor found"
-          });
-      }
-      
+    const { search } = req.query;
+
+    try {
+        const query = search ? { bloodGroup: search } : {};
+
+        const donars = await DonarRegisterModel.find(query);
+        res.status(200).json(donars);
+
     } catch (error) {
-      res.status(500).json({
-        message: "Something went wrong",
-        error: error.message,
-      });
+        res.status(500).json({
+            message: "Something went wrong",
+            error: error.message,
+        });
     }
-  };
-  
+};
+
 
 
 //  get specific donar / login donar information
-const getSpecificDonarInfo = async (req, res) => {
+const getUniqueDonar = async (req, res) => {
     const { user } = req;
-    const isDonar = await donarRegisterModel.find({ email: user.email, name: user.name });
+    const isDonar = await DonarRegisterModel.find({ userId: user.userId });
 
     try {
         if (isDonar.length > 0) {
 
-            res.status(200).json({
-                message: "Get Specific Donar",
-                ok: true,
-                donarInfo: isDonar
-            })
+            res.status(200).json(isDonar)
         } else {
 
             res.status(404).json({
@@ -61,14 +47,38 @@ const getSpecificDonarInfo = async (req, res) => {
 }
 
 const registerDonar = async (req, res) => {
-    const { contactNumber, dob, profilePic, address, donationDate, donationTime, gender, bloodGroup, weight, emergencyContact, relationshipContact, beforeDonation, message } = req.body;
     const { user } = req;
 
-    try {
-        const isRegister = await donarRegisterModel.findOne({ email: user.email });
+    const {
+        contactNumber,
+        dob,
+        photo,
+        address,
+        donationDate,
+        gender,
+        bloodGroup,
+        weight,
+        emergencyContact,
+        relationshipContact,
+        beforeDonation,
+        message,
+        donationLocation,
+        medicalCondition,
+        allergies,
+        lastDonationLocation,
+        preferredDonationTime
+    } = req.body;
 
-        if (!isRegister) {
-            const newDonar = await donarRegisterModel.create({
+
+
+    try {
+
+        const isRegistered = await DonarRegisterModel.findOne({ email: user.email });
+
+        if (!isRegistered) {
+            // Create a new donor profile
+            const newDonar = new DonarRegisterModel({
+                userId: user.userId,
                 name: user.name,
                 email: user.email,
                 role: user.role,
@@ -76,29 +86,43 @@ const registerDonar = async (req, res) => {
                 address,
                 dob,
                 donationDate,
-                donationTime,
                 gender,
                 bloodGroup,
                 weight,
                 emergencyContact,
                 relationshipContact,
                 beforeDonation,
-                profilePic: profilePic || user.profilePic,
+                donationLocation,
+                medicalCondition,
+                allergies,
+                lastDonationLocation,
+                preferredDonationTime,
+                photo,
                 message,
             });
+
+
             await newDonar.save();
 
+            // Send a success response
             return res.status(201).json({
-                message: "Registration Successful",
+                ok: true,
+                message: "Registration successful",
             });
         }
 
-        return res.status(400).json({
-            message: "You have already created an event",
+        // If already registered, send a conflict response
+        return res.status(409).json({
+            ok: false,
+            message: "You have already registered as a donor.",
         });
+
     } catch (error) {
+        // Handle errors during registration
+        console.log(error)
         return res.status(500).json({
-            message: "Something went wrong",
+            ok: false,
+            message: "Something went wrong during registration.",
             error: error.message,
         });
     }
@@ -108,43 +132,60 @@ const registerDonar = async (req, res) => {
 
 
 const updateDonar = async (req, res) => {
-
     const { id } = req.params;
-    const isRegister = await donarRegisterModel.findOne({ _id: id })
-    try {
-        if (isRegister) {
 
-            await donarRegisterModel.updateOne(
+    try {
+        const isRegister = await DonarRegisterModel.findOne({ _id: id });
+
+        if (isRegister) {
+            let updateFields = req.body;
+
+            // Check if lastDonationDate is being updated
+            if (req.body.donationDate) {
+
+                updateFields.beforeDonation = isRegister.beforeDonation + 1;
+            }
+
+            await DonarRegisterModel.updateOne(
                 { _id: id },
                 {
-                    $set: req.body,
+                    $set: updateFields,
                 }
             );
+
             res.status(200).json({
-                message: "Update your Event"
-            })
+                message: "Donar information updated successfully!",
+            });
+        } else {
+            res.status(404).json({
+                message: "Donar not found!",
+            });
         }
     } catch (error) {
         res.status(500).json({
-            message: "Somthing went wrong",
-            error: error.message
-        })
+            message: "Something went wrong",
+            error: error.message,
+            ok: false,
+        });
     }
-}
+};
+
 
 const deleteDonar = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const deletedDonar = await donarRegisterModel.findByIdAndDelete(id);
+        const deletedDonar = await DonarRegisterModel.findByIdAndDelete(id);
 
         if (deletedDonar) {
             res.status(200).json({
-                message: "Donar deleted successfully"
+                message: "  deleted successful",
+                ok: true
             });
         } else {
             res.status(404).json({
-                message: "Donar not found"
+                message: "Donar not found",
+                ok: false
             });
         }
     } catch (error) {
@@ -156,4 +197,4 @@ const deleteDonar = async (req, res) => {
 };
 
 
-module.exports = { getDonars, getSpecificDonarInfo, registerDonar, updateDonar, deleteDonar }
+module.exports = { getDonars, getUniqueDonar, registerDonar, updateDonar, deleteDonar }

@@ -8,7 +8,6 @@ const userRegister = require("./routes/Register/user_register.route");
 const adminRouter = require("./routes/auth/admin.route");
 const volunteerRouter = require("./routes/volunteer/volunteer.route");
 const sliderRouter = require("./routes/slider/slider.route");
-const logoRouter = require("./routes/logo/logo.route");
 const colorRouter = require("./routes/color/color.route");
 
 app.use(cors())
@@ -32,8 +31,6 @@ app.use("/api/volunteer", volunteerRouter)
 app.use("/api/slider" , sliderRouter)
 
 
-// logo
-app.use("/api/logo" , logoRouter)
 
 // colors 
 app.use("/api/color", colorRouter)

@@ -1,44 +1,33 @@
 const userRegister = require("../../models/Register/User_register")
 
 
-const getUsers = async (req, res) => {
-    const {search} = req.query;
+const getAllAppoinment = async (req, res) => {
+    const { search } = req.query;
+
+
     try {
-        const users = await userRegister.find({
-            bloodGroup: { $regex: new RegExp(search, 'i') },
-        }
-        )
-        res.status(200).json({
-            message: "get All users",
-            users,
-        })
+
+        const query = search ? { bloodGroup: search } : {};
+
+        const recipients = await userRegister.find(query);
+        res.status(200).json(recipients);
+
     } catch (error) {
         res.status(500).json({
-            message: "Somthing went wrong",
+            message: "Something went wrong",
             error: error.message
-        })
+        });
     }
-}
+};
 
-const getSpecificUser = async (req, res) => {
+
+const getUniqueAppoinemnt = async (req, res) => {
     const { user } = req;
-    const isUser = await userRegister.find({ email: user.email, name: user.name, role: user.role });
 
     try {
-        if (isUser.length > 0) {
 
-            res.status(200).json({
-                message: "Get Specific user",
-                ok: true,
-                userInfo: isUser
-            })
-        } else {
-
-            res.status(404).json({
-                message: "You Have No Events",
-                ok: false,
-            })
-        }
+        const isUser = await userRegister.find({ userId: user.userId });
+        res.status(200).json(isUser)
 
     } catch (error) {
         res.status(500).json({
@@ -48,39 +37,55 @@ const getSpecificUser = async (req, res) => {
     }
 }
 
-const registertUsers = async (req, res) => {
-    const { contactNumber, bloodGroup, problem, howMuch, needTime, whereNeed, profilePic, message } = req.body;
-    const { user } = req;
-    try {
+const registerAppoinment = async (req, res) => {
 
-        const newDonar = await userRegister.create({
-            name: user.name,
-            email: user.email,
-            role: user.role,
+    const { patientName, patientAge, contactNumber, bloodGroup, problem, howMuch, needTime, location, hospital, preferredDate, urgency, doctorContact, photo, message } = req.body;
+
+    const { user } = req;
+
+    try {
+        const formattedDate = preferredDate.split('T')[0];
+
+
+        const newAppoinment = await userRegister.create({
+            userId: user.userId,
+            refName: user.name,
+            refEmail: user.email,
+            patientName,
+            patientAge,
             bloodGroup,
             problem,
             howMuch,
             contactNumber,
             needTime,
-            whereNeed,
-            profilePic: profilePic || user.profilePic,
+            location,
+            hospital,
+            preferredDate: formattedDate,
+            urgency,
+            doctorContact,
+            photo: photo,
             message,
         });
-        await newDonar.save();
+
+        await newAppoinment.save();
 
         return res.status(201).json({
-            message: "Registration Successful",
+            message: "Appoinment Successful",
+            ok: true,
         });
-    }
-    catch (error) {
+    } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: "Something went wrong",
             error: error.message,
+            ok: false,
         });
-    }
-}
 
-const updatetUsers = async (req, res) => {
+    }
+};
+
+
+const updateAppoinment = async (req, res) => {
     const { id } = req.params;
     const isRegister = await userRegister.findOne({ _id: id })
     try {
@@ -93,39 +98,44 @@ const updatetUsers = async (req, res) => {
                 }
             );
             res.status(200).json({
-                message: "Update your Event"
+                message: "Successful Updated !",
+                ok: true,
             })
         }
     } catch (error) {
         res.status(500).json({
             message: "Somthing went wrong",
-            error: error.message
+            error: error.message,
+            ok: true,
         })
     }
 }
 
-const deletetUsersRegister = async (req, res) => {
-    const { id } = req.params; 
+const deleteAppoinment = async (req, res) => {
+    const { id } = req.params;
 
     try {
         const deletedRegister = await userRegister.findByIdAndDelete(id);
 
         if (deletedRegister) {
             res.status(200).json({
-                message: "Event deleted successfully"
+                message: "deleted successful",
+                ok: true,
             });
         } else {
             res.status(404).json({
-                message: "Event not found"
+                message: "not found",
+                ok: false,
             });
         }
     } catch (error) {
         res.status(500).json({
             message: "Something went wrong",
-            error: error.message
+            error: error.message,
+            ok: false,
         });
     }
 };
 
 
-module.exports = { getUsers, getSpecificUser, registertUsers, updatetUsers, deletetUsersRegister }
+module.exports = { getAllAppoinment, getUniqueAppoinemnt, registerAppoinment, updateAppoinment, deleteAppoinment }

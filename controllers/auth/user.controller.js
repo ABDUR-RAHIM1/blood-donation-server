@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 
 const getUsers = async (req, res) => {
     try {
-        const users = await userAuth.find();
+        const users = await userAuth.find().select("-password");
         res.status(200).json(users)
     } catch (error) {
         res.status(500).json({
@@ -19,7 +19,7 @@ const getUsers = async (req, res) => {
 const getOneUser = async (req, res) => {
     const { user } = req;
 
-    const loginUser = await userAuth.findOne({ email: user.email, name: user.name })
+    const loginUser = await userAuth.findOne({ _id: user.userId }).select("-password")
     try {
         if (loginUser) {
             res.status(200).json(loginUser)
@@ -38,7 +38,7 @@ const getOneUser = async (req, res) => {
 }
 
 const registerUsers = async (req, res) => {
-    const { name, email, role, gender, password, profilePic, date } = req.body;
+    const { name, email, role, gender, password, photo } = req.body;
 
     try {
         const isEmail = await userAuth.findOne({ email });
@@ -51,20 +51,19 @@ const registerUsers = async (req, res) => {
                 gender,
                 role,
                 password: hashPassword,
-                profilePic,
-                date
+                photo,
             });
 
             const user = await newUser.save();
             res.status(201).json({
-                message: 'User Register Successfull',
-                register: true,
+                message: ' Register Successfull',
+                ok: true,
                 user
             })
         } else {
             res.status(401).json({
                 message: 'Email Already  exist',
-                register: false,
+                ok: false,
             })
         }
 
@@ -72,7 +71,7 @@ const registerUsers = async (req, res) => {
 
         res.status(500).json({
             message: 'Shomthing went wrong',
-            register: false,
+            ok: false,
             error: error.message
         })
     }
@@ -88,24 +87,25 @@ const loginUsers = async (req, res) => {
             if (isPassword) {
                 res.status(200).json({
                     message: "login succesful",
-                    login: true,
+                    ok: true,
                     token: jwt.sign({
+                        userId: isValidEmail._id,
                         name: isValidEmail.name,
                         email: isValidEmail.email,
-                        role : isValidEmail.role,
-                        profilePic: isValidEmail.profilePic
+                        role: isValidEmail.role,
+
                     }, process.env.JWT_SECRET)
                 })
             } else {
                 res.status(500).json({
-                    login: false,
-                    message: "Invalid Credintial 😪"
+                    ok: false,
+                    message: "Invalid Credintial!"
                 })
             }
         } else {
             res.status(401).json({
                 login: false,
-                message: "Invalid Credintial 😪"
+                message: "Invalid Credintial!"
             })
         }
 
@@ -167,7 +167,7 @@ const deleteUsers = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({
-            message: 'Somthing went wrong', 
+            message: 'Somthing went wrong',
             error: error.message
         })
     }

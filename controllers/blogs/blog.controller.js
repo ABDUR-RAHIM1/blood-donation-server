@@ -5,9 +5,7 @@ const getAllBlogs = async (req, res) => {
 
     try {
         const blogs = await blogsModel.find();
-        res.status(200).json({
-            blogs
-        })
+        res.status(200).json(blogs)
     } catch (error) {
         res.status(500).json({
             message: "Cannot get Blogs",
@@ -17,11 +15,11 @@ const getAllBlogs = async (req, res) => {
 }
 
 const getOneBlogs = async (req, res) => {
-    const { name, email } = req.user;
+    const { userId } = req.user;
 
     try {
-        const blogs = await blogsModel.find({ name, email });
-        res.status(200).json({ blogs })
+        const blogs = await blogsModel.find({ userId });
+        res.status(200).json(blogs)
     } catch (error) {
         res.status(500).json({
             message: "Cannot Get Your Blogs",
@@ -35,24 +33,27 @@ const addBlogs = async (req, res) => {
 
     const { user } = req;
     try {
-        const { title, desc, profilePic } = req.body;
+        const { title, desc, photo } = req.body;
         const newBlog = await blogsModel({
+            userId: user.userId,
             name: user.name,
             email: user.email,
             role: user.role,
             title,
             desc,
-            profilePic
+            photo
         });
 
         const blogs = await newBlog.save();
         res.status(201).json({
-            message: "Add Your Blog Successful"
+            message: "Post successful",
+            ok: true
         })
 
     } catch (error) {
         res.status(500).json({
-            message: "Blog Not Create",
+            message: "Post Failed",
+            ok: false,
             error: error.message
         })
     }
@@ -62,18 +63,20 @@ const addBlogs = async (req, res) => {
 
 const updateBlogs = async (req, res) => {
 
-    const { id } = req.params; 
+    const { id } = req.params;
     try {
         await blogsModel.findByIdAndUpdate({ _id: id }, {
             $set: req.body
         }, { new: true });
         res.status(200).json({
-            message: "Blog has been updated",
+            message: "Post has been updated",
+            ok: true
         })
     } catch (error) {
         res.status(500).json({
             message: "Somthing mistake",
-            error: error.message
+            error: error.message,
+            ok: false
         })
     }
 }
@@ -86,17 +89,20 @@ const deleteBlogs = async (req, res) => {
         if (isBlog) {
             await blogsModel.findByIdAndDelete({ _id: id });
             res.status(200).json({
-                message: "Blog has been Deleted"
+                message: "Blog has been Deleted",
+                ok: true
             })
-        }else{
+        } else {
             res.status(200).json({
-                message: "Already deleted this Blog"
-            }) 
+                message: "Already deleted this Blog",
+                ok: false
+            })
         }
     } catch (error) {
         res.status(500).json({
             message: "Somthing mistake",
-            error: error.message
+            error: error.message,
+            ok: false
         })
     }
 }

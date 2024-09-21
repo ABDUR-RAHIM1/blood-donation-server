@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const blogScema = mongoose.Schema({
+    userId: {
+        type: String,
+        required: true,
+    },
     name: {
         type: String,
         required: true,
@@ -21,8 +25,8 @@ const blogScema = mongoose.Schema({
         type: String,
         required: true,
     },
-    profilePic: {
-        type: String, 
+    photo: {
+        type: String,
     },
     postAt: {
         type: Date,
