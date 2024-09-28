@@ -20,31 +20,30 @@ const getDonars = async (req, res) => {
 
 
 
-//  get specific donar / login donar information
+// Get specific donor / login donor information
 const getUniqueDonar = async (req, res) => {
     const { user } = req;
-    const isDonar = await DonarRegisterModel.find({ userId: user.userId });
 
     try {
-        if (isDonar.length > 0) {
+        const isDonar = await DonarRegisterModel.findOne({ userId: user.userId });
 
-            res.status(200).json(isDonar)
+        if (isDonar) {
+            res.status(200).json(isDonar);
         } else {
-
             res.status(404).json({
-                message: "You Have No Events",
+                message: "You have no events",
                 ok: false,
-            })
+            });
         }
-
     } catch (error) {
-        res.status(500).json({
-            message: "Somthing went wrong",
-            error: error.message
-        })
-    }
 
+        res.status(500).json({
+            message: "Something went wrong",
+            error: error.message,
+        });
+    }
 }
+
 
 const registerDonar = async (req, res) => {
     const { user } = req;

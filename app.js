@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express()
-const cors = require('cors')  
+const cors = require('cors')
 const Donar_register = require("./routes/Register/Donar_register.route");
 const blogsRouter = require("./routes/blogs/blogs.route");
 const userRouter = require("./routes/auth/user.route");
@@ -12,7 +12,7 @@ const colorRouter = require("./routes/color/color.route");
 
 app.use(cors())
 app.use(express.json())
-app.use(express.urlencoded({ extended: false })); 
+app.use(express.urlencoded({ extended: false }));
 //  router //////////////////////////////////////// 
 app.use('/api/donar-register', Donar_register)
 
@@ -28,7 +28,7 @@ app.use("/api/admin", adminRouter)
 app.use("/api/volunteer", volunteerRouter)
 
 // slider
-app.use("/api/slider" , sliderRouter)
+app.use("/api/slider", sliderRouter)
 
 
 
