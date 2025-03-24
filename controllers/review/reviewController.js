@@ -1,6 +1,7 @@
-import DonarRegisterModel from "../../models/Register/Donar_register.model.js";
 
-export const addReview = async (req, res) => {
+const DonarRegisterModel = require("../../models/Register/Donar_register.model");
+
+ const addReview = async (req, res) => {
     const { donarId } = req.params;
     const { user } = req;
     const { rating, comment } = req.body;
@@ -30,7 +31,7 @@ export const addReview = async (req, res) => {
 
 
 
-export const deleteDonarReview = async (req, res) => {
+const deleteDonarReview = async (req, res) => {
     const { donarId, reviewId } = req.params;
     const { userId } = req.user;
 
@@ -63,4 +64,10 @@ export const deleteDonarReview = async (req, res) => {
             error: error.message
         });
     }
+};
+
+
+module.exports = {
+    addReview,
+    deleteDonarReview
 };
