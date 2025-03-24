@@ -1,0 +1,73 @@
+ 
+login => uses token
+ 
+USER sssssssssssssssssssssssssssssssssssssssssssssss
+user authentication =>  http://localhost:8000/api/users
+get => /users
+get-one =>  /users-one 🆗
+register => /register 🆗
+login => /login 🆗
+reset => /reset/:id 🆗
+delete => /delete/:id 🆗
+////// eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+user register //// sssssssssssssssssssssssssssssssssssssssssssss
+http://localhost:8000/api/users-register/
+
+get => /users
+get-one => /users-one   🆗
+register => /register 🆗
+update => /update/:id 🆗
+delete => /delete/:id 🆗
+
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+donar registration 
+http://localhost:8000/api/donar-register  🆗
+
+get-one / register => uses token
+
+get =>/donars 🆗
+get specific donar    // http://localhost:8000/api/donar-register/donars-one 🆗
+post => /register  🆗
+put => /update/:id   🆗  // http://localhost:8000/api/donar-register/update/:id delete => /delete/:id    // http://localhost:8000/api/donar-register/delete/:id
+
+ 
+///// sssssssssssssssssssssssssssssssssssssssssssss      blogs =>>>>>>>>>>>>>
+
+one-blog / add-blog => uses token
+
+http://localhost:8000/api/blogs/blogs   => get all 🆗
+http://localhost:8000/api/blogs/blogs-one  => get one 🆗
+http://localhost:8000/api/blogs/blogs   => add one 🆗
+http://localhost:8000/api/blogs/:id   =>  update one 🆗
+http://localhost:8000/api/blogs/:id   =>  delete one 🆗
+
+///// eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee  
+
+
+
+//// admin api  ///////////////////////////////////////////////
+http://localhost:8000/api/admin
+get admin : /admins 🆗
+register account : /register   🆗
+login account : /login 🆗
+reset pass : /reset  🆗 
+
+
+//// addd volunteer 
+http://localhost:8000/api/volunteer
+get - /volunteer 🆗
+get-add - /volunteer-one 🆗
+add - /volunteer-add 🆗
+update - /update:id 🆗
+delete - /delete:id 🆗
+
+
+////// add color palate
+
+http://localhost:8000/api/color
+
+get - /colors 
+add - /add 
+update / update/colors ( colors is work as a id)  🆗
